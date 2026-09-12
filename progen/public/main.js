@@ -148,7 +148,7 @@ class ProGen {
         ['posX', 'posY', 'posZ'].forEach((id, index) => {
             document.getElementById(id).addEventListener('input', (e) => {
                 if (this.selectedObject) {
-                    this.selectedObject.position[index] = parseFloat(e.target.value) || 0;
+                    this.selectedObject.position.setComponent(index, parseFloat(e.target.value) || 0);
                 }
             });
         });
@@ -157,7 +157,7 @@ class ProGen {
             document.getElementById(id).addEventListener('input', (e) => {
                 if (this.selectedObject) {
                     const val = parseFloat(e.target.value) || 1;
-                    this.selectedObject.scale[index] = Math.max(0.1, val);
+                    this.selectedObject.scale.setComponent(index, Math.max(0.1, val));
                 }
             });
         });
@@ -165,7 +165,7 @@ class ProGen {
         ['rotX', 'rotY', 'rotZ'].forEach((id, index) => {
             document.getElementById(id).addEventListener('input', (e) => {
                 if (this.selectedObject) {
-                    this.selectedObject.rotation[index] = (parseFloat(e.target.value) || 0) * Math.PI / 180;
+                    this.selectedObject.rotation.setComponent(index, (parseFloat(e.target.value) || 0) * Math.PI / 180);
                 }
             });
         });
