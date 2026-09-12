@@ -174,31 +174,31 @@ app.post('/api/export', (req, res) => {
 // Helper functions
 function generateGCode(objects) {
     let g = '; Pro-Gen G-Code\nG21\nG90\nM82\n';
-    objects.forEach((o, i) => { g += `; ${o.name}\nG1 X${o.position[0]} Y${o.position[1]} Z${o.position[2]}\n`; });
+    objects.forEach((o) => { g += `; ${o.name}\nG1 X${o.position[0]} Y${o.position[1]} Z${o.position[2]}\n`; });
     return g + 'G28\nM84\n';
 }
 
 function generateCNCCode(objects) {
     let c = '(Pro-Gen CNC)\n%\nO1000\nG17 G20 G40 G49 G80 G90\n';
-    objects.forEach((o, i) => { c += `(${o.name})\nG0 X${o.position[0]} Y${o.position[1]}\nM3 S10000\n`; });
+    objects.forEach((o) => { c += `(${o.name})\nG0 X${o.position[0]} Y${o.position[1]}\nM3 S10000\n`; });
     return c + 'G0 Z1.0\nM5\nM30\n%\n';
 }
 
 function generateLaserCode(objects) {
     let l = '; Pro-Gen Laser\n';
-    objects.forEach((o, i) => { l += `; ${o.name}\nG0 X${o.position[0]*10} Y${o.position[1]*10}\nM3 S1000\n`; });
+    objects.forEach((o) => { l += `; ${o.name}\nG0 X${o.position[0]*10} Y${o.position[1]*10}\nM3 S1000\n`; });
     return l + 'M5\n';
 }
 
 function generateSTL(objects) {
     let s = 'solid progen_model\n';
-    objects.forEach(o => { s += `# ${o.name}\n  facet normal 0 0 1\n    outer loop\n      vertex 0 0 0\n      vertex 1 0 0\n      vertex 0 1 0\n    endloop\n  endfacet\n`; });
+    objects.forEach((o) => { s += `# ${o.name}\n  facet normal 0 0 1\n    outer loop\n      vertex 0 0 0\n      vertex 1 0 0\n      vertex 0 1 0\n    endloop\n  endfacet\n`; });
     return s + 'endsolid progen_model\n';
 }
 
 function generateOBJ(objects) {
     let o = '# Pro-Gen OBJ\n';
-    objects.forEach((obj, i) => {
+    objects.forEach((obj) => {
         o += `o ${obj.name}\nv ${obj.position[0]} ${obj.position[1]} ${obj.position[2]}\nv ${obj.position[0]+1} ${obj.position[1]} ${obj.position[2]}\nv ${obj.position[0]} ${obj.position[1]+1} ${obj.position[2]}\nf 1 2 3\n\n`;
     });
     return o;

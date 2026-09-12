@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "Professional 3D Modeling Hub - Natural modeling for production workflows",
   "main": "api/server.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "server": "node api/server.js",
-    "start": "npm run build && npm run server"
+    "start": "npm run build && npm run server",
+    "lint": "eslint public/**/*.js api/**/*.js",
+    "format": "prettier --write \"public/**/*.{js,html,css}\" \"api/**/*.js\"",
+    "test": "node --experimental-vm-modules test/test.js"
   },
   "keywords": [
     "3d",
@@ -16,7 +20,9 @@
     "cad",
     "3d-printing",
     "cnc",
-    "electronics"
+    "electronics",
+    "threejs",
+    "webgl"
   ],
   "author": "",
   "license": "ISC",
@@ -27,6 +33,13 @@
     "three": "^0.160.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.2.5",
     "vite": "^5.4.21"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

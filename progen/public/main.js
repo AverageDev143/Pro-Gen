@@ -1,10 +1,15 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// Pro-Gen - Professional 3D Modeling Hub
-// Main Application Logic
-
+/**
+ * Pro-Gen - Professional 3D Modeling Hub
+ * Main Application Logic
+ * @version 1.0.0
+ */
 class ProGen {
+    /**
+     * Initialize the ProGen application
+     */
     constructor() {
         this.scene = null;
         this.camera = null;
@@ -193,9 +198,9 @@ class ProGen {
     }
     
     addObject(type) {
-        let geometry, material, mesh;
+        let geometry;
         const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
-        material = new THREE.MeshStandardMaterial({ 
+        const material = new THREE.MeshStandardMaterial({ 
             color,
             metalness: 0.3,
             roughness: 0.7
@@ -221,7 +226,7 @@ class ProGen {
                 return;
         }
         
-        mesh = new THREE.Mesh(geometry, material);
+        const mesh = new THREE.Mesh(geometry, material);
         mesh.position.y = 0.5;
         mesh.castShadow = true;
         mesh.receiveShadow = true;
@@ -589,7 +594,7 @@ class ProGen {
             } else {
                 throw new Error(data.error || 'Failed to send to machine');
             }
-        } catch (error) {
+        } catch {
             // For demo purposes, show success even if endpoint doesn't exist
             alert(`Simulated: Model sent to ${machineType} at ${machineUrl}\n\n(In production, ensure your machine API is running)`);
         }
