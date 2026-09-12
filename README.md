@@ -20,8 +20,8 @@ Then open http://localhost:3000 in your browser.
 - **Natural 3D Modeling**: Simple tool-based interface, no complex shortcuts to memorize
 - **Heat Factor Analysis**: Unique feature for electronics-aware design with temperature visualization
 - **AI-Powered Generation**: Describe what you want, AI creates it
-- ** Direct Manufacturing**: Export to STL/OBJ/STEP or send directly to 3D printers/CNC machines
-- ** Plugin System**: Local API support to extend functionality
+- **Direct Manufacturing**: Export to STL/OBJ/STEP or send directly to 3D printers/CNC machines
+- **Plugin System**: Local API support to extend functionality
 
 ## 📁 Project Structure
 
