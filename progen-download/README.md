@@ -25,7 +25,7 @@ If you already have the standalone file, just:
 
 ## What You Get
 
-- **Single HTML file** (~0.5MB) - everything bundled together
+- **Single HTML file** (~64KB) - everything bundled together
 - **No Node.js required** - runs directly in your browser
 - **No npm install** - zero dependencies to manage
 - **No build process** - instant setup
@@ -128,10 +128,10 @@ progen-download/
 
 | Feature | Traditional 3D Apps | Pro-Gen Download |
 |---------|-------------------|------------------|
-| Installation | 100MB+ installer | Single HTML file |
+| Installation | 100MB+ installer | Single 64KB HTML file |
 | Setup Time | 5-10 minutes | 5 seconds |
 | Dependencies | Multiple libraries | None (browser only) |
-| Disk Space | 200MB+ | ~0.5MB |
+| Disk Space | 200MB+ | ~64KB |
 | Startup Time | 10-30 seconds | Instant |
 | Updates | Manual downloads | Always latest version |
 
