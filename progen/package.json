@@ -1,0 +1,32 @@
+{
+  "name": "progen",
+  "version": "1.0.0",
+  "description": "Professional 3D Modeling Hub - Natural modeling for production workflows",
+  "main": "api/server.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node api/server.js",
+    "start": "npm run build && npm run server"
+  },
+  "keywords": [
+    "3d",
+    "modeling",
+    "cad",
+    "3d-printing",
+    "cnc",
+    "electronics"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.21"
+  }
+}
