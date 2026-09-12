@@ -47,6 +47,11 @@ cd progen
 npm install
 ```
 
+### Documentation Links
+
+- [Quick Start Guide](./docs/QUICKSTART.md) - Detailed setup instructions
+- [API Documentation](./docs/API.md) - Backend API reference for developers
+
 ### Run Desktop App
 
 ```bash
