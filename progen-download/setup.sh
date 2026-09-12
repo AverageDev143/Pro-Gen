@@ -64,12 +64,12 @@ FOOTER
 
 # Get file size
 FILE_SIZE=$(wc -c < "$OUTPUT_FILE")
-FILE_SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $FILE_SIZE / 1048576}")
+FILE_SIZE_KB=$(awk "BEGIN {printf \"%.0f\", $FILE_SIZE / 1024}")
 
 echo ""
 echo "✅ Setup Complete!"
 echo ""
-echo "📦 Output: $OUTPUT_FILE (${FILE_SIZE_MB}MB)"
+echo "📦 Output: $OUTPUT_FILE (${FILE_SIZE_KB}KB)"
 echo ""
 echo "🎯 How to use:"
 echo "   1. Open $OUTPUT_FILE in any modern browser (Chrome, Firefox, Edge)"
