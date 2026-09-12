@@ -1,15 +1,12 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from './vendors/three/addons/controls/OrbitControls.js';
 
 /**
- * Pro-Gen - Professional 3D Modeling Hub
+ * Pro-Gen - Lightweight 3D Modeling Desktop App
  * Main Application Logic
- * @version 1.0.0
+ * @version 2.0.0
  */
 class ProGen {
-    /**
-     * Initialize the ProGen application
-     */
     constructor() {
         this.scene = null;
         this.camera = null;
@@ -22,16 +19,10 @@ class ProGen {
         this.isWireframe = false;
         this.heatAnalysisEnabled = false;
         this.currentTemperature = 25;
-        this.apiKey = localStorage.getItem('progen_api_key') || '';
         
         this.init();
         this.setupEventListeners();
         this.animate();
-        
-        // Load saved API key
-        if (this.apiKey) {
-            document.getElementById('apiKey').value = this.apiKey;
-        }
     }
     
     init() {
@@ -49,21 +40,24 @@ class ProGen {
         this.camera.position.set(5, 5, 5);
         this.camera.lookAt(0, 0, 0);
         
-        // Renderer
+        // Renderer - optimized for performance
         const viewport = document.getElementById('viewport');
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         this.renderer.setSize(viewport.clientWidth, viewport.clientHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         viewport.appendChild(this.renderer.domElement);
         
-        // Controls
+        // Controls - smoothed
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
+        this.controls.dampingFactor = 0.08;
         this.controls.screenSpacePanning = false;
         this.controls.minDistance = 1;
         this.controls.maxDistance = 100;
+        this.controls.autoRotate = false;
+        this.controls.autoRotateSpeed = 2.0;
         
         // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -72,6 +66,8 @@ class ProGen {
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(10, 10, 5);
         directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
         this.scene.add(directionalLight);
         
         const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
@@ -95,11 +91,12 @@ class ProGen {
     }
     
     setupEventListeners() {
-        // Tool buttons
+        // Tool buttons with smooth feedback
         document.querySelectorAll('[data-tool]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const tool = e.currentTarget.dataset.tool;
                 this.addObject(tool);
+                this.animateButton(e.currentTarget);
             });
         });
         
@@ -120,34 +117,19 @@ class ProGen {
             this.updateHeatVisualization();
         });
         
-        // Temperature slider
+        // Temperature slider with smooth updates
+        let tempUpdateTimeout;
         document.getElementById('tempSlider').addEventListener('input', (e) => {
+            clearTimeout(tempUpdateTimeout);
             this.currentTemperature = parseInt(e.target.value);
             document.getElementById('tempValue').textContent = this.currentTemperature;
-            this.updateHeatDisplay();
-            this.updateHeatVisualization();
+            tempUpdateTimeout = setTimeout(() => {
+                this.updateHeatDisplay();
+                this.updateHeatVisualization();
+            }, 16);
         });
         
-        // API Key save
-        document.getElementById('saveApiKey').addEventListener('click', () => {
-            const key = document.getElementById('apiKey').value.trim();
-            this.apiKey = key;
-            localStorage.setItem('progen_api_key', key);
-            alert(key ? 'API Key saved successfully!' : 'API Key cleared!');
-        });
-        
-        // AI Assistant
-        document.getElementById('aiAssistantBtn').addEventListener('click', () => {
-            document.getElementById('aiModal').classList.remove('hidden');
-        });
-        
-        document.getElementById('closeAiModal').addEventListener('click', () => {
-            document.getElementById('aiModal').classList.add('hidden');
-        });
-        
-        document.getElementById('generateBtn').addEventListener('click', () => this.generateWithAI());
-        
-        // Property inputs
+        // Property inputs with validation
         document.getElementById('objName').addEventListener('input', (e) => {
             if (this.selectedObject) {
                 this.selectedObject.userData.name = e.target.value;
@@ -183,18 +165,22 @@ class ProGen {
         document.getElementById('objColor').addEventListener('input', (e) => {
             if (this.selectedObject && this.selectedObject.material) {
                 this.selectedObject.material.color.set(e.target.value);
+                this.selectedObject.userData.baseColor = new THREE.Color(e.target.value).getHex();
             }
         });
-        
-        // Export and manufacturing
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportModel());
-        document.getElementById('sendToMachineBtn').addEventListener('click', () => this.sendToMachine());
         
         // Viewport click for selection
         this.renderer.domElement.addEventListener('click', (e) => this.onViewportClick(e));
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.onKeyDown(e));
+    }
+    
+    animateButton(button) {
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 100);
     }
     
     addObject(type) {
@@ -468,136 +454,6 @@ class ProGen {
                 obj.material.color.copy(color);
             }
         });
-    }
-    
-    async generateWithAI() {
-        const prompt = document.getElementById('aiPrompt').value.trim();
-        if (!prompt) {
-            alert('Please enter a description');
-            return;
-        }
-        
-        if (!this.apiKey) {
-            alert('Please enter your OpenAI API key first');
-            return;
-        }
-        
-        const loading = document.getElementById('aiLoading');
-        const result = document.getElementById('aiResult');
-        const generateBtn = document.getElementById('generateBtn');
-        
-        loading.classList.remove('hidden');
-        result.classList.add('hidden');
-        generateBtn.disabled = true;
-        
-        try {
-            const response = await fetch('/api/ai-generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    prompt,
-                    apiKey: this.apiKey 
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                result.innerHTML = `<p>${data.message}</p>`;
-                result.classList.remove('hidden');
-                
-                // Parse the generated code and create objects
-                if (data.objects) {
-                    data.objects.forEach(objType => {
-                        this.addObject(objType);
-                    });
-                }
-            } else {
-                throw new Error(data.error || 'Generation failed');
-            }
-        } catch (error) {
-            result.innerHTML = `<p style="color: var(--danger)">Error: ${error.message}</p>`;
-            result.classList.remove('hidden');
-        } finally {
-            loading.classList.add('hidden');
-            generateBtn.disabled = false;
-        }
-    }
-    
-    exportModel() {
-        const format = document.getElementById('exportFormat').value;
-        
-        if (this.objects.length === 0) {
-            alert('No objects to export');
-            return;
-        }
-        
-        // Simple STL export (in production, use proper library)
-        let stlContent = 'solid progen_model\n';
-        
-        this.objects.forEach(obj => {
-            if (obj.geometry) {
-                stlContent += `# Object: ${obj.userData.name}\n`;
-                // Simplified - in production would need proper triangulation
-            }
-        });
-        
-        stlContent += 'endsolid progen_model';
-        
-        const blob = new Blob([stlContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `progen_model.${format}`;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        alert(`Model exported as ${format.toUpperCase()}!`);
-    }
-    
-    async sendToMachine() {
-        const machineType = document.getElementById('machineType').value;
-        const machineUrl = document.getElementById('machineUrl').value.trim();
-        
-        if (!machineUrl) {
-            alert('Please enter the machine URL/IP address');
-            return;
-        }
-        
-        if (this.objects.length === 0) {
-            alert('No objects to send');
-            return;
-        }
-        
-        try {
-            // In production, this would send actual G-code or machine instructions
-            const response = await fetch('/api/send-to-machine', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    machineType,
-                    machineUrl,
-                    objects: this.objects.map(obj => ({
-                        name: obj.userData.name,
-                        type: obj.userData.type,
-                        position: obj.position.toArray(),
-                        scale: obj.scale.toArray(),
-                        rotation: [obj.rotation.x, obj.rotation.y, obj.rotation.z]
-                    }))
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                alert(`Successfully sent to ${machineType} at ${machineUrl}`);
-            } else {
-                throw new Error(data.error || 'Failed to send to machine');
-            }
-        } catch {
-            // For demo purposes, show success even if endpoint doesn't exist
-            alert(`Simulated: Model sent to ${machineType} at ${machineUrl}\n\n(In production, ensure your machine API is running)`);
-        }
     }
     
     onWindowResize() {

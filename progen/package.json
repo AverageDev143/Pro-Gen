@@ -1,45 +1,51 @@
 {
   "name": "progen",
-  "version": "1.0.0",
-  "description": "Professional 3D Modeling Hub - Natural modeling for production workflows",
-  "main": "api/server.js",
+  "version": "2.0.0",
+  "description": "Lightweight 3D Modeling Desktop Application",
+  "main": "main.js",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "server": "node api/server.js",
-    "start": "npm run build && npm run server",
-    "lint": "eslint public/**/*.js api/**/*.js",
-    "format": "prettier --write \"public/**/*.{js,html,css}\" \"api/**/*.js\"",
-    "test": "node --experimental-vm-modules test/test.js"
+    "start": "electron .",
+    "dev": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
   },
   "keywords": [
     "3d",
     "modeling",
-    "cad",
-    "3d-printing",
-    "cnc",
-    "electronics",
-    "threejs",
-    "webgl"
+    "desktop-app",
+    "electron",
+    "lightweight"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
     "three": "^0.160.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
-    "globals": "^15.0.0",
-    "prettier": "^3.2.5",
-    "vite": "^5.4.21"
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "build": {
+    "appId": "com.progen.app",
+    "productName": "Pro-Gen",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "public/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
