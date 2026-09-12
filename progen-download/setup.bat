@@ -87,7 +87,7 @@ echo ====================================
 echo    Setup Complete!
 echo ====================================
 echo.
-echo Output: %OUTPUT_FILE% ^(64KB^)
+echo Output: %OUTPUT_FILE% (65KB)
 echo.
 echo How to use:
 echo    1. Open %OUTPUT_FILE% in any modern browser

@@ -1,34 +1,35 @@
 # 🚀 Pro-Gen Download - Lightest 3D Modeling Runtime
 
-**Zero installation. Zero dependencies. Just open and create.**
+**Zero installation. Zero dependencies. Just download and open.**
 
 ## Quick Start
 
-### Option 1: Auto-Setup Script (Recommended)
+### Option 1: Direct Use (Recommended)
+
+The standalone file is already included! Just:
+
+1. Open `progen-standalone.html` (65KB) in Chrome, Firefox, Edge, or Safari
+2. That's it! No installation, no setup needed.
+
+### Option 2: Fresh Setup Script
+
+If you want to regenerate the standalone file from source:
 
 ```bash
 # Clone or download this folder
 cd progen-download
 
-# Run the auto-setup script
+# Run the auto-setup script (requires progen source files)
 chmod +x setup.sh
 ./setup.sh
 ```
 
-This creates `progen-standalone.html` - a single file that runs in any browser!
-
-### Option 2: Direct Download
-
-If you already have the standalone file, just:
-1. Open `progen-standalone.html` in Chrome, Firefox, Edge, or Safari
-2. That's it! No installation needed.
-
 ## What You Get
 
-- **Single HTML file** (~64KB) - everything bundled together
+- **Single HTML file** (65KB) - everything bundled together
 - **No Node.js required** - runs directly in your browser
 - **No npm install** - zero dependencies to manage
-- **No build process** - instant setup
+- **No build process** - instant startup
 - **Lightest runtime possible** - just your web browser
 
 ## Features
@@ -93,11 +94,13 @@ That's it! No other requirements.
 
 ```
 progen-download/
-├── README.md           # This file
-├── setup.sh            # Auto-setup script for Linux/Mac
-├── setup.bat           # Auto-setup script for Windows
-└── progen-standalone.html  # Generated single-file app (run setup first)
+├── README.md                 # This file
+├── setup.sh                  # Auto-setup script for Linux/Mac (optional)
+├── setup.bat                 # Auto-setup script for Windows (optional)
+└── progen-standalone.html    # Ready-to-use single-file app (65KB)
 ```
+
+**Note:** The standalone HTML file is already included and ready to use! The setup scripts are only needed if you want to regenerate it from source files.
 
 ## Privacy & Security
 
@@ -128,10 +131,10 @@ progen-download/
 
 | Feature | Traditional 3D Apps | Pro-Gen Download |
 |---------|-------------------|------------------|
-| Installation | 100MB+ installer | Single 64KB HTML file |
-| Setup Time | 5-10 minutes | 5 seconds |
+| Installation | 100MB+ installer | Single 65KB HTML file |
+| Setup Time | 5-10 minutes | Instant (already included) |
 | Dependencies | Multiple libraries | None (browser only) |
-| Disk Space | 200MB+ | ~64KB |
+| Disk Space | 200MB+ | ~65KB |
 | Startup Time | 10-30 seconds | Instant |
 | Updates | Manual downloads | Always latest version |
 
@@ -155,4 +158,4 @@ For issues or feature requests, please visit the main repository.
 
 **Made with ❤️ for creators who want instant access to 3D modeling tools.**
 
-*Pro-Gen v2.0.0 - The lightest 3D modeling runtime*
+*Pro-Gen v2.0.0 - The lightest 3D modeling runtime (65KB)*
