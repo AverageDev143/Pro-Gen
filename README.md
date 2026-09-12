@@ -1,10 +1,10 @@
 # Pro-Gen: Natural 3D Modeling Hub
 
-🎨 **Have you ever wanted to model something or design a product but always found Blender and other free solutions hard?**
+ **Have you ever wanted to model something or design a product but always found Blender and other free solutions hard?**
 
 Well, introducing **Pro-Gen** - a new workspace-style app that makes it feel natural to model items and push them to things such as a 3D printer or CNC machine.
 
-## 🚀 Quick Start
+##  Quick Start
 
 ```bash
 cd progen
@@ -37,13 +37,13 @@ Then open http://localhost:3000 in your browser.
     └── dist/              # Production build
 ```
 
-## 📖 Documentation
+## Documentation
 
 - [Full README](./progen/README.md) - Complete feature overview
 - [Quick Start Guide](./progen/docs/QUICKSTART.md) - Get started in minutes
 - [API Documentation](./progen/docs/API.md) - For developers and plugin creators
 
-## 🛠️ What Makes Pro-Gen Different?
+## What Makes Pro-Gen Different?
 
 Unlike Blender which has a steep learning curve, Pro-Gen focuses on:
 1. **Simplicity**: Click-to-create primitives, intuitive property panels
