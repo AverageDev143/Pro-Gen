@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Gen - 3D Modeling</title>
+    <style>
+/* Pro-Gen - Lightweight 3D Modeling Desktop App Styles */
+
+:root {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #0f3460;
+    --accent-primary: #667eea;
+    --accent-secondary: #764ba2;
+    --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8b8;
+    --text-muted: #6b7280;
+    --border-color: #2d3748;
+    --success: #48bb78;
+    --warning: #ed8936;
+    --danger: #f56565;
+    --heat-safe: #48bb78;
+    --heat-moderate: #ed8936;
+    --heat-danger: #f56565;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --transition: all 0.15s ease-out;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.api-key-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.api-input {
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    width: 200px;
+    transition: var(--transition);
+}
+
+.api-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Heat Toggle */
+.heat-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.heat-toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 44px;
+    height: 22px;
+    background: var(--bg-tertiary);
+    border-radius: 11px;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.heat-toggle input:checked + .toggle-slider {
+    background: var(--accent-gradient);
+}
+
+.heat-toggle input:checked + .toggle-slider::before {
+    transform: translateX(22px);
+    background: white;
+}
+
+.toggle-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Workspace */
+.workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Toolbar */
+.toolbar {
+    width: 160px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tool-section h3 {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 0.375rem;
+}
+
+.tool-btn:hover {
+    background: var(--border-color);
+    border-color: var(--accent-primary);
+    transform: translateX(2px);
+}
+
+.tool-btn svg {
+    flex-shrink: 0;
+}
+
+/* Viewport */
+.viewport-container {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    overflow: hidden;
+}
+
+#viewport {
+    width: 100%;
+    height: 100%;
+    outline: none;
+}
+
+/* Heat Overlay */
+.heat-overlay {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: rgba(22, 33, 62, 0.95);
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+}
+
+.heat-overlay.hidden {
+    display: none;
+}
+
+.heat-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.heat-bar {
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.heat-level {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+#heatValue {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.heat-status {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.heat-status.safe {
+    background: rgba(72, 187, 120, 0.2);
+    color: var(--heat-safe);
+}
+
+.heat-status.moderate {
+    background: rgba(237, 137, 54, 0.2);
+    color: var(--heat-moderate);
+}
+
+.heat-status.danger {
+    background: rgba(245, 101, 101, 0.2);
+    color: var(--heat-danger);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 0.25rem;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-body textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    resize: vertical;
+    transition: var(--transition);
+}
+
+.modal-body textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--bg-tertiary);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.ai-result {
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+/* Properties Panel */
+.properties-panel {
+    width: 260px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    padding: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.panel-section h3 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-section h4 {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 1rem 0 0.5rem;
+}
+
+.no-selection {
+    text-align: center;
+    padding: 1.5rem 0.75rem;
+    color: var(--text-muted);
+}
+
+.no-selection p {
+    font-size: 0.875rem;
+    margin-bottom: 0.375rem;
+}
+
+.no-selection small {
+    font-size: 0.6875rem;
+}
+
+.object-properties {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.prop-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.prop-group label {
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.prop-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.prop-input {
+    width: 100%;
+    padding: 0.375rem 0.625rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    transition: var(--transition);
+}
+
+.prop-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+.prop-input-small {
+    flex: 1;
+    padding: 0.375rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.prop-input-small:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.prop-color {
+    width: 100%;
+    height: 32px;
+    padding: 0.25rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+/* Heat Controls */
+.heat-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.temp-slider {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.temp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.temp-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+.heat-zones {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+.zone {
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.zone.safe {
+    color: var(--heat-safe);
+}
+
+.zone.moderate {
+    color: var(--heat-moderate);
+}
+
+.zone.danger {
+    color: var(--heat-danger);
+}
+
+/* Export Options */
+.export-options,
+.machine-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Scene List */
+.scene-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.empty-scene {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    padding: 1rem;
+}
+
+.scene-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.scene-item:hover {
+    border-color: var(--accent-primary);
+    background: var(--border-color);
+}
+
+.scene-item.active {
+    border-color: var(--accent-primary);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.scene-item-name {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.scene-item-type {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-color);
+}
+
+/* Toast Notifications */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .properties-panel {
+        width: 260px;
+    }
+    
+    .toolbar {
+        width: 160px;
+    }
+}
+
+@media (max-width: 900px) {
+    .workspace {
+        flex-direction: column;
+    }
+    
+    .toolbar {
+        width: 100%;
+        flex-direction: row;
+        padding: 0.75rem;
+        gap: 1rem;
+        overflow-x: auto;
+    }
+    
+    .properties-panel {
+        width: 100%;
+        max-height: 300px;
+    }
+    
+    .tagline {
+        display: none;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                    <rect x="4" y="4" width="24" height="24" rx="4" fill="url(#gradient1)"/>
+                    <path d="M10 16L16 10L22 16L16 22L10 16Z" fill="white" opacity="0.9"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="4" y1="4" x2="28" y2="28">
+                            <stop stop-color="#667eea"/>
+                            <stop offset="1" stop-color="#764ba2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>Pro-Gen</h1>
+            </div>
+            
+            <div class="header-actions">
+                <div class="heat-toggle-container">
+                    <label class="heat-toggle">
+                        <input type="checkbox" id="heatToggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">🔥 Heat</span>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <!-- Left Toolbar -->
+            <aside class="toolbar">
+                <div class="tool-section">
+                    <h3>Create</h3>
+                    <button class="tool-btn" data-tool="cube" title="Add Cube (Shift+C)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4 10L12 6L20 10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 6V16" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Cube</span>
+                    </button>
+                    <button class="tool-btn" data-tool="sphere" title="Add Sphere (Shift+S)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="12" cy="12" rx="8" ry="3" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Sphere</span>
+                    </button>
+                    <button class="tool-btn" data-tool="cylinder" title="Add Cylinder">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4 6V18C4 19.6569 7.58172 21 12 21C16.4183 21 20 19.6569 20 18V6" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Cylinder</span>
+                    </button>
+                    <button class="tool-btn" data-tool="cone" title="Add Cone">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4L4 20H20L12 4Z" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="12" cy="20" rx="8" ry="2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Cone</span>
+                    </button>
+                    <button class="tool-btn" data-tool="torus" title="Add Torus">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Torus</span>
+                    </button>
+                    <button class="tool-btn" data-tool="torusKnot" title="Add Torus Knot">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C13 2 14 4 14 6C14 8 12 10 12 12C12 10 10 8 10 6C10 4 11 2 12 2Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 14C13 14 14 16 14 18C14 20 12 22 12 22C12 22 10 20 10 18C10 16 11 14 12 14Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Knot</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Polyhedra</h3>
+                    <button class="tool-btn" data-tool="dodecahedron" title="Add Dodecahedron">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <polygon points="12,2 20,8 17,18 7,18 4,8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Dodeca</span>
+                    </button>
+                    <button class="tool-btn" data-tool="icosahedron" title="Add Icosahedron">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <polygon points="12,2 20,10 12,22 4,10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Icosa</span>
+                    </button>
+                    <button class="tool-btn" data-tool="octahedron" title="Add Octahedron">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="4" width="16" height="16" transform="rotate(45 12 12)" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Octa</span>
+                    </button>
+                    <button class="tool-btn" data-tool="tetrahedron" title="Add Tetrahedron">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4L4 20H20L12 4Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Tetra</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Custom</h3>
+                    <button class="tool-btn" data-tool="capsule" title="Add Capsule">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="8" y="4" width="8" height="12" rx="4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Capsule</span>
+                    </button>
+                    <button class="tool-btn" data-tool="pyramid" title="Add Pyramid">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4L4 20H20L12 4Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4 20L12 12L20 20" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Pyramid</span>
+                    </button>
+                    <button class="tool-btn" data-tool="gear" title="Add Gear">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2V6M12 18V22M2 12H6M18 12H22M5 5L8 8M16 16L19 19M5 19L8 16M16 8L19 5" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Gear</span>
+                    </button>
+                    <button class="tool-btn" data-tool="star" title="Add Star">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Star</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Curves</h3>
+                    <button class="tool-btn" data-tool="tube" title="Add Curved Tube">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 12C4 12 8 4 12 4C16 4 20 12 20 12" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Tube</span>
+                    </button>
+                    <button class="tool-btn" data-tool="spiral" title="Add Spiral">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 20C20 20 16 16 12 16C8 16 4 20 4 20M16 16C16 16 14 12 12 12C10 12 8 16 8 16" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Spiral</span>
+                    </button>
+                    <button class="tool-btn" data-tool="spring" title="Add Spring Coil">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 4C8 4 6 8 8 12C10 16 14 16 16 12C18 8 16 4 16 4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Spring</span>
+                    </button>
+                    <button class="tool-btn" data-tool="ring" title="Add Ring (Flat)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <ellipse cx="12" cy="12" rx="10" ry="4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Ring</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Fluid Motion</h3>
+                    <button class="tool-btn" data-tool="fluidCurve" title="Add smooth flowing curve for product design">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 16C4 16 8 8 12 8C16 8 20 16 20 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Fluid Curve</span>
+                    </button>
+                    <button class="tool-btn" data-tool="ergonomicCurve" title="Add ergonomic S-curve for handles and grips">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 18C4 18 8 18 10 12C12 6 16 6 20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Ergonomic</span>
+                    </button>
+                    <button class="tool-btn" data-tool="productEdge" title="Add clean product edge with rounded corners">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="6" width="16" height="12" rx="3" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Product Edge</span>
+                    </button>
+                    <button class="tool-btn" data-tool="fillGap" title="Fill gap between two points with smooth bridge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="4" cy="12" r="2" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="20" cy="12" r="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M6 12C6 12 10 6 12 12C14 18 18 12 18 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Fill Gap</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Actions</h3>
+                    <button class="tool-btn" id="duplicateBtn" title="Duplicate (Ctrl+D)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <rect x="4" y="4" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Duplicate</span>
+                    </button>
+                    <button class="tool-btn" id="deleteBtn" title="Delete (Del)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Delete</span>
+                    </button>
+                    <button class="tool-btn" id="clearBtn" title="Clear All">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 4L20 20M20 4L4 20" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>View</h3>
+                    <button class="tool-btn" id="resetViewBtn" title="Reset Camera (R)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 4V10H10M20 20V14H14M20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                    <button class="tool-btn" id="toggleGridBtn" title="Toggle Grid (G)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 4V20M20 4V20M4 12H20M4 8H20M4 16H20M12 4V20M8 4V20M16 4V20" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Grid</span>
+                    </button>
+                    <button class="tool-btn" id="wireframeBtn" title="Toggle Wireframe (W)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 4L12 8L20 4M4 4V20L12 16L20 20V4M12 8V16M4 12L12 16L20 12" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Wire</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Viewport -->
+            <main class="viewport-container">
+                <div id="viewport"></div>
+                
+                <!-- Heat Display Overlay -->
+                <div id="heatOverlay" class="heat-overlay hidden">
+                    <div class="heat-indicator">
+                        <div class="heat-bar">
+                            <div id="heatLevel" class="heat-level" style="width: 0%"></div>
+                        </div>
+                        <span id="heatValue">0°C</span>
+                        <span id="heatStatus" class="heat-status safe">Safe</span>
+                    </div>
+                </div>
+
+
+            <!-- Right Properties Panel -->
+            <aside class="properties-panel">
+                <div class="panel-section">
+                    <h3>Properties</h3>
+                    <div id="noSelection" class="no-selection">
+                        <p>No object selected</p>
+                        <small>Click an object or use scene list</small>
+                    </div>
+                    
+                    <div id="objectProperties" class="object-properties hidden">
+                        <div class="prop-group">
+                            <label>Name</label>
+                            <input type="text" id="objName" class="prop-input">
+                        </div>
+                        
+                        <div class="prop-group">
+                            <label>Position</label>
+                            <div class="prop-row">
+                                <input type="number" id="posX" step="0.1" class="prop-input-small" title="X">
+                                <input type="number" id="posY" step="0.1" class="prop-input-small" title="Y">
+                                <input type="number" id="posZ" step="0.1" class="prop-input-small" title="Z">
+                            </div>
+                        </div>
+                        
+                        <div class="prop-group">
+                            <label>Scale</label>
+                            <div class="prop-row">
+                                <input type="number" id="scaleX" step="0.1" min="0.1" class="prop-input-small" title="X">
+                                <input type="number" id="scaleY" step="0.1" min="0.1" class="prop-input-small" title="Y">
+                                <input type="number" id="scaleZ" step="0.1" min="0.1" class="prop-input-small" title="Z">
+                            </div>
+                        </div>
+                        
+                        <div class="prop-group">
+                            <label>Rotation</label>
+                            <div class="prop-row">
+                                <input type="number" id="rotX" step="15" class="prop-input-small" title="X">
+                                <input type="number" id="rotY" step="15" class="prop-input-small" title="Y">
+                                <input type="number" id="rotZ" step="15" class="prop-input-small" title="Z">
+                            </div>
+                        </div>
+                        
+                        <div class="prop-group">
+                            <label>Color</label>
+                            <input type="color" id="objColor" class="prop-color">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Heat Analysis</h3>
+                    <div class="heat-controls">
+                        <label>Temp: <span id="tempValue">25</span>°C</label>
+                        <input type="range" id="tempSlider" min="0" max="500" value="25" class="temp-slider">
+                        <div class="heat-zones">
+                            <span class="zone safe">&lt;150°</span>
+                            <span class="zone moderate">150-300°</span>
+                            <span class="zone danger">&gt;300°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Scene</h3>
+                    <div id="sceneList" class="scene-list">
+                        <p class="empty-scene">No objects</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+        
+
+/**
+ * Pro-Gen - Lightweight 3D Modeling Desktop App
+ * Main Application Logic
+ * @version 2.0.0
+ */
+class ProGen {
+    constructor() {
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.controls = null;
+        this.objects = [];
+        this.selectedObject = null;
+        this.objectCounter = 0;
+        this.gridHelper = null;
+        this.isWireframe = false;
+        this.heatAnalysisEnabled = false;
+        this.currentTemperature = 25;
+        
+        this.init();
+        this.setupEventListeners();
+        this.animate();
+    }
+    
+    init() {
+        // Scene
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x1a1a2e);
+        
+        // Camera
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        this.camera.position.set(5, 5, 5);
+        this.camera.lookAt(0, 0, 0);
+        
+        // Renderer - optimized for performance
+        const viewport = document.getElementById('viewport');
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        this.renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        viewport.appendChild(this.renderer.domElement);
+        
+        // Controls - smoothed
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.08;
+        this.controls.screenSpacePanning = false;
+        this.controls.minDistance = 1;
+        this.controls.maxDistance = 100;
+        this.controls.autoRotate = false;
+        this.controls.autoRotateSpeed = 2.0;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        this.scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 10, 5);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        this.scene.add(directionalLight);
+        
+        const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+        directionalLight2.position.set(-10, -10, -5);
+        this.scene.add(directionalLight2);
+        
+        // Grid
+        this.gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+        this.scene.add(this.gridHelper);
+        
+        // Axes helper
+        const axesHelper = new THREE.AxesHelper(3);
+        this.scene.add(axesHelper);
+        
+        // Raycaster for object selection
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => this.onWindowResize());
+    }
+    
+    setupEventListeners() {
+        // Tool buttons with smooth feedback
+        document.querySelectorAll('[data-tool]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tool = e.currentTarget.dataset.tool;
+                this.addObject(tool);
+                this.animateButton(e.currentTarget);
+            });
+        });
+        
+        // Action buttons
+        document.getElementById('duplicateBtn').addEventListener('click', () => this.duplicateObject());
+        document.getElementById('deleteBtn').addEventListener('click', () => this.deleteObject());
+        document.getElementById('clearBtn').addEventListener('click', () => this.clearScene());
+        
+        // View buttons
+        document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
+        document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
+        document.getElementById('wireframeBtn').addEventListener('click', () => this.toggleWireframe());
+        
+        // Heat toggle
+        document.getElementById('heatToggle').addEventListener('change', (e) => {
+            this.heatAnalysisEnabled = e.target.checked;
+            const heatOverlay = document.getElementById('heatOverlay');
+            if (!heatOverlay) return;
+            
+            heatOverlay.classList.toggle('hidden', !this.heatAnalysisEnabled);
+            
+            if (this.heatAnalysisEnabled) {
+                this.updateHeatVisualization();
+            } else {
+                this.restoreObjectColors();
+            }
+        });
+        
+        // Temperature slider with smooth updates
+        let tempUpdateTimeout;
+        document.getElementById('tempSlider').addEventListener('input', (e) => {
+            clearTimeout(tempUpdateTimeout);
+            this.currentTemperature = parseInt(e.target.value);
+            document.getElementById('tempValue').textContent = this.currentTemperature;
+            tempUpdateTimeout = setTimeout(() => {
+                this.updateHeatDisplay();
+                this.updateHeatVisualization();
+            }, 16);
+        });
+        
+        // Property inputs with validation
+        document.getElementById('objName').addEventListener('input', (e) => {
+            if (this.selectedObject) {
+                this.selectedObject.userData.name = e.target.value;
+                this.updateSceneList();
+            }
+        });
+        
+        ['posX', 'posY', 'posZ'].forEach((id, index) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                if (this.selectedObject) {
+                    this.selectedObject.position.setComponent(index, parseFloat(e.target.value) || 0);
+                }
+            });
+        });
+        
+        ['scaleX', 'scaleY', 'scaleZ'].forEach((id, index) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                if (this.selectedObject) {
+                    const val = parseFloat(e.target.value) || 1;
+                    this.selectedObject.scale.setComponent(index, Math.max(0.1, val));
+                }
+            });
+        });
+        
+        ['rotX', 'rotY', 'rotZ'].forEach((id, index) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                if (this.selectedObject) {
+                    this.selectedObject.rotation.setComponent(index, (parseFloat(e.target.value) || 0) * Math.PI / 180);
+                }
+            });
+        });
+        
+        document.getElementById('objColor').addEventListener('input', (e) => {
+            if (this.selectedObject && this.selectedObject.material) {
+                this.selectedObject.material.color.set(e.target.value);
+                this.selectedObject.userData.baseColor = new THREE.Color(e.target.value).getHex();
+            }
+        });
+        
+        // Viewport click for selection
+        this.renderer.domElement.addEventListener('click', (e) => this.onViewportClick(e));
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.onKeyDown(e));
+    }
+    
+    animateButton(button) {
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 100);
+    }
+    
+    addObject(type, params = {}) {
+        let geometry;
+        const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
+        const material = new THREE.MeshStandardMaterial({ 
+            color,
+            metalness: 0.3,
+            roughness: 0.7
+        });
+        
+        switch(type) {
+            case 'cube':
+                geometry = new THREE.BoxGeometry(1, 1, 1);
+                break;
+            case 'sphere':
+                geometry = new THREE.SphereGeometry(0.5, 32, 32);
+                break;
+            case 'cylinder':
+                geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+                break;
+            case 'cone':
+                geometry = new THREE.ConeGeometry(0.5, 1, 32);
+                break;
+            case 'torus':
+                geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 32);
+                break;
+            case 'torusKnot':
+                geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 64, 8);
+                break;
+            case 'dodecahedron':
+                geometry = new THREE.DodecahedronGeometry(0.5);
+                break;
+            case 'icosahedron':
+                geometry = new THREE.IcosahedronGeometry(0.5);
+                break;
+            case 'octahedron':
+                geometry = new THREE.OctahedronGeometry(0.5);
+                break;
+            case 'tetrahedron':
+                geometry = new THREE.TetrahedronGeometry(0.5);
+                break;
+            case 'capsule':
+                geometry = new THREE.CapsuleGeometry(0.3, 0.6, 16, 32);
+                break;
+            case 'tube':
+                const path = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(-1, 0, 0),
+                    new THREE.Vector3(-0.5, 0.5, 0),
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(0.5, -0.5, 0),
+                    new THREE.Vector3(1, 0, 0)
+                ]);
+                geometry = new THREE.TubeGeometry(path, 20, 0.15, 8, false);
+                break;
+            case 'spiral':
+                const spiralPath = new THREE.CatmullRomCurve3(this.generateSpiralPoints());
+                geometry = new THREE.TubeGeometry(spiralPath, 50, 0.1, 8, false);
+                break;
+            case 'spring':
+                const springPath = new THREE.CatmullRomCurve3(this.generateSpringPoints());
+                geometry = new THREE.TubeGeometry(springPath, 64, 0.12, 8, false);
+                break;
+            case 'fluidCurve':
+                const fluidPath = new THREE.CatmullRomCurve3(this.generateFluidCurvePoints(params.segments || 8, params.amplitude || 0.5, params.frequency || 1, params.closed || false));
+                geometry = new THREE.TubeGeometry(fluidPath, 64, params.radius || 0.15, 16, params.closed || false);
+                break;
+            case 'ergonomicCurve':
+                const ergoPath = new THREE.CatmullRomCurve3(this.generateErgonomicCurvePoints(params.closed || false));
+                geometry = new THREE.TubeGeometry(ergoPath, 48, params.radius || 0.2, 12, params.closed || false);
+                break;
+            case 'productEdge':
+                const edgePath = new THREE.CatmullRomCurve3(this.generateProductEdgePoints(params.cornerRadius || 0.3, params.width || 1.5, params.height || 0.5));
+                geometry = new THREE.TubeGeometry(edgePath, 32, params.radius || 0.08, 8, false);
+                break;
+            case 'fillGap':
+                // Gap fill creates a smooth bridge between two points
+                const gapPath = new THREE.CatmullRomCurve3(this.generateGapFillPoints(params.start || new THREE.Vector3(-1, 0, 0), params.end || new THREE.Vector3(1, 0, 0), params.sag || 0.3));
+                geometry = new THREE.TubeGeometry(gapPath, 24, params.radius || 0.12, 10, false);
+                break;
+            case 'gear':
+                geometry = this.createGearGeometry(0.5, 0.3, 0.15, 8);
+                break;
+            case 'star':
+                geometry = this.createStarGeometry(0.5, 0.25, 5);
+                break;
+            case 'pyramid':
+                geometry = new THREE.ConeGeometry(0.5, 0.8, 4);
+                break;
+            case 'ring':
+                geometry = new THREE.RingGeometry(0.3, 0.5, 32);
+                const ringMesh = new THREE.Mesh(geometry, material);
+                ringMesh.rotation.x = -Math.PI / 2;
+                mesh = ringMesh;
+                break;
+            default:
+                return;
+        }
+        
+        if (!geometry && type !== 'ring') return;
+        
+        if (type !== 'ring') {
+            mesh.position.y = 0.5;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+        }
+        
+        this.objectCounter++;
+        mesh.userData = {
+            id: this.objectCounter,
+            name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${this.objectCounter}`,
+            type: type,
+            baseColor: color.getHex()
+        };
+        
+        this.scene.add(mesh);
+        this.objects.push(mesh);
+        this.selectObject(mesh);
+        this.updateSceneList();
+    }
+    
+    selectObject(object) {
+        // Deselect previous
+        if (this.selectedObject && this.selectedObject.material) {
+            this.selectedObject.material.emissive?.setHex(0x000000);
+        }
+        
+        this.selectedObject = object;
+        
+        if (object) {
+            // Highlight selected
+            if (object.material) {
+                object.material.emissive?.setHex(0x333333);
+            }
+            
+            // Update properties panel
+            document.getElementById('noSelection').classList.add('hidden');
+            document.getElementById('objectProperties').classList.remove('hidden');
+            
+            // Populate fields
+            document.getElementById('objName').value = object.userData.name || '';
+            document.getElementById('posX').value = object.position.x.toFixed(2);
+            document.getElementById('posY').value = object.position.y.toFixed(2);
+            document.getElementById('posZ').value = object.position.z.toFixed(2);
+            document.getElementById('scaleX').value = object.scale.x.toFixed(2);
+            document.getElementById('scaleY').value = object.scale.y.toFixed(2);
+            document.getElementById('scaleZ').value = object.scale.z.toFixed(2);
+            document.getElementById('rotX').value = (object.rotation.x * 180 / Math.PI).toFixed(0);
+            document.getElementById('rotY').value = (object.rotation.y * 180 / Math.PI).toFixed(0);
+            document.getElementById('rotZ').value = (object.rotation.z * 180 / Math.PI).toFixed(0);
+            
+            if (object.material && object.material.color) {
+                document.getElementById('objColor').value = '#' + object.material.color.getHexString();
+            }
+            
+            // Update scene list selection
+            document.querySelectorAll('.scene-item').forEach(item => {
+                item.classList.toggle('active', parseInt(item.dataset.id) === object.userData.id);
+            });
+        } else {
+            document.getElementById('noSelection').classList.remove('hidden');
+            document.getElementById('objectProperties').classList.add('hidden');
+        }
+    }
+    
+    duplicateObject() {
+        if (!this.selectedObject) {
+            this.showToast('Please select an object to duplicate');
+            return;
+        }
+        
+        const original = this.selectedObject;
+        const clone = original.clone();
+        
+        this.objectCounter++;
+        clone.userData = {
+            ...original.userData,
+            id: this.objectCounter,
+            name: `${original.userData.name} Copy`
+        };
+        
+        clone.position.x += 1;
+        
+        this.scene.add(clone);
+        this.objects.push(clone);
+        this.selectObject(clone);
+        this.updateSceneList();
+    }
+    
+    deleteObject() {
+        if (!this.selectedObject) {
+            this.showToast('Please select an object to delete');
+            return;
+        }
+        
+        const index = this.objects.indexOf(this.selectedObject);
+        if (index > -1) {
+            this.objects.splice(index, 1);
+            this.scene.remove(this.selectedObject);
+            this.selectedObject.geometry?.dispose();
+            this.selectedObject.material?.dispose();
+            this.selectObject(null);
+            this.updateSceneList();
+        }
+    }
+    
+    clearScene() {
+        if (this.objects.length === 0) {
+            this.showToast('Scene is already empty');
+            return;
+        }
+        
+        if (!confirm('Are you sure you want to clear all objects?')) return;
+        
+        this.objects.forEach(obj => {
+            this.scene.remove(obj);
+            obj.geometry?.dispose();
+            obj.material?.dispose();
+        });
+        
+        this.objects = [];
+        this.selectObject(null);
+        this.updateSceneList();
+    }
+    
+    showToast(message, duration = 2000) {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 33, 62, 0.95);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            font-size: 0.875rem;
+            animation: fadeIn 0.2s ease-out;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.2s ease-out';
+            setTimeout(() => toast.remove(), 200);
+        }, duration);
+    }
+    
+    resetView() {
+        this.camera.position.set(5, 5, 5);
+        this.camera.lookAt(0, 0, 0);
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+        this.showToast('View reset', 1200);
+    }
+    
+    toggleGrid() {
+        if (this.gridHelper) {
+            this.gridHelper.visible = !this.gridHelper.visible;
+            this.showToast(this.gridHelper.visible ? 'Grid shown' : 'Grid hidden', 1500);
+        }
+    }
+    
+    toggleWireframe() {
+        this.isWireframe = !this.isWireframe;
+        this.objects.forEach(obj => {
+            if (obj.material) {
+                obj.material.wireframe = this.isWireframe;
+            }
+        });
+        this.showToast(this.isWireframe ? 'Wireframe enabled' : 'Wireframe disabled', 1500);
+    }
+    
+    onViewportClick(event) {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.objects);
+        
+        if (intersects.length > 0) {
+            this.selectObject(intersects[0].object);
+        } else {
+            this.selectObject(null);
+        }
+    }
+    
+    onKeyDown(event) {
+        switch(event.key.toLowerCase()) {
+            case 'delete':
+            case 'backspace':
+                if (document.activeElement.tagName !== 'INPUT' && 
+                    document.activeElement.tagName !== 'TEXTAREA') {
+                    this.deleteObject();
+                }
+                break;
+            case 'd':
+                if (event.ctrlKey || event.metaKey) {
+                    event.preventDefault();
+                    this.duplicateObject();
+                }
+                break;
+            case 'escape':
+                this.selectObject(null);
+                break;
+        }
+    }
+    
+    updateSceneList() {
+        const list = document.getElementById('sceneList');
+        
+        if (this.objects.length === 0) {
+            list.innerHTML = '<p class="empty-scene">No objects in scene</p>';
+            return;
+        }
+        
+        list.innerHTML = this.objects.map(obj => `
+            <div class="scene-item" data-id="${obj.userData.id}">
+                <div>
+                    <div class="scene-item-name">${obj.userData.name}</div>
+                    <div class="scene-item-type">${obj.userData.type}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        list.querySelectorAll('.scene-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const id = parseInt(item.dataset.id);
+                const obj = this.objects.find(o => o.userData.id === id);
+                if (obj) this.selectObject(obj);
+            });
+        });
+    }
+    
+    updateHeatDisplay() {
+        const heatLevel = document.getElementById('heatLevel');
+        const heatValue = document.getElementById('heatValue');
+        const heatStatus = document.getElementById('heatStatus');
+        
+        const percentage = (this.currentTemperature / 500) * 100;
+        heatLevel.style.width = `${percentage}%`;
+        heatValue.textContent = `${this.currentTemperature}°C`;
+        
+        if (this.currentTemperature < 150) {
+            heatStatus.textContent = 'Safe for Electronics';
+            heatStatus.className = 'heat-status safe';
+        } else if (this.currentTemperature < 300) {
+            heatStatus.textContent = 'Moderate Heat - Caution';
+            heatStatus.className = 'heat-status moderate';
+        } else {
+            heatStatus.textContent = 'High Heat - Danger';
+            heatStatus.className = 'heat-status danger';
+        }
+    }
+    
+    updateHeatVisualization() {
+        if (!this.heatAnalysisEnabled) return;
+        
+        // Color based on temperature
+        const objects = this.objects.filter(obj => obj.userData.type !== 'grid');
+        
+        objects.forEach(obj => {
+            if (obj.material) {
+                let color;
+                if (this.currentTemperature < 150) {
+                    color = new THREE.Color().setHex(obj.userData.baseColor);
+                } else if (this.currentTemperature < 300) {
+                    color = new THREE.Color().setHSL(0.1, 0.8, 0.5); // Orange-ish
+                } else {
+                    color = new THREE.Color().setHSL(0, 0.9, 0.5); // Red
+                }
+                obj.material.color.copy(color);
+            }
+        });
+    }
+    
+    restoreObjectColors() {
+        // Restore original colors when heat analysis is disabled
+        const objects = this.objects.filter(obj => obj.userData.type !== 'grid');
+        
+        objects.forEach(obj => {
+            if (obj.material && obj.userData.baseColor) {
+                obj.material.color.setHex(obj.userData.baseColor);
+            }
+        });
+    }
+    
+    generateSpiralPoints() {
+        const points = [];
+        for (let i = 0; i < 50; i++) {
+            const angle = i * 0.3;
+            const radius = 1 + i * 0.04;
+            points.push(new THREE.Vector3(
+                Math.cos(angle) * radius,
+                i * 0.1,
+                Math.sin(angle) * radius
+            ));
+        }
+        return points;
+    }
+    
+    generateSpringPoints() {
+        const points = [];
+        const coils = 5;
+        const totalPoints = 64;
+        for (let i = 0; i <= totalPoints; i++) {
+            const angle = (i / totalPoints) * Math.PI * 2 * coils;
+            const height = (i / totalPoints) * 2 - 1;
+            points.push(new THREE.Vector3(
+                Math.cos(angle) * 0.4,
+                height,
+                Math.sin(angle) * 0.4
+            ));
+        }
+        return points;
+    }
+    
+    generateFluidCurvePoints(segments = 8, amplitude = 0.5, frequency = 1, closed = false) {
+        // Creates smooth, flowing curves ideal for product design
+        // Avoids blob-like shapes, creates elegant curves
+        const points = [];
+        const totalPoints = segments * 4;
+        
+        for (let i = 0; i <= totalPoints; i++) {
+            const t = i / totalPoints;
+            const angle = t * Math.PI * 2 * frequency;
+            
+            // Smooth sine wave with gentle transitions
+            const x = (t - 0.5) * 2;
+            const y = Math.sin(angle) * amplitude;
+            const z = Math.cos(angle * 0.5) * amplitude * 0.3;
+            
+            points.push(new THREE.Vector3(x, y, z));
+        }
+        
+        // Close the loop if needed
+        if (closed && points.length > 0) {
+            points.push(points[0].clone());
+        }
+        
+        return points;
+    }
+    
+    generateErgonomicCurvePoints(closed = false) {
+        // Creates ergonomic curves suitable for handles and grips
+        const points = [];
+        const segments = 12;
+        
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            
+            // Ergonomic S-curve shape
+            const x = (t - 0.5) * 2;
+            const y = Math.pow(t - 0.5, 3) * 1.5;
+            const z = Math.sin(t * Math.PI) * 0.2;
+            
+            points.push(new THREE.Vector3(x, y, z));
+        }
+        
+        if (closed && points.length > 0) {
+            points.push(points[0].clone());
+        }
+        
+        return points;
+    }
+    
+    generateProductEdgePoints(cornerRadius = 0.3, width = 1.5, height = 0.5) {
+        // Creates clean product edges with rounded corners
+        // Perfect for consumer product design
+        const points = [];
+        const cornerSegments = 8;
+        
+        // Bottom left to bottom right
+        for (let i = 0; i <= cornerSegments; i++) {
+            const t = i / cornerSegments;
+            points.push(new THREE.Vector3(-width/2 + t * width, -height/2, 0));
+        }
+        
+        // Bottom right to top right (rounded corner)
+        for (let i = 0; i <= cornerSegments; i++) {
+            const angle = (i / cornerSegments) * Math.PI / 2;
+            points.push(new THREE.Vector3(
+                width/2 - cornerRadius + Math.cos(angle) * cornerRadius,
+                -height/2 + cornerRadius - Math.sin(angle) * cornerRadius,
+                0
+            ));
+        }
+        
+        // Top right to top left
+        for (let i = 0; i <= cornerSegments; i++) {
+            const t = i / cornerSegments;
+            points.push(new THREE.Vector3(width/2 - t * width, height/2, 0));
+        }
+        
+        // Top left to bottom left (rounded corner)
+        for (let i = 0; i <= cornerSegments; i++) {
+            const angle = (i / cornerSegments) * Math.PI / 2;
+            points.push(new THREE.Vector3(
+                -width/2 + cornerRadius - Math.cos(angle) * cornerRadius,
+                height/2 - cornerRadius + Math.sin(angle) * cornerRadius,
+                0
+            ));
+        }
+        
+        return points;
+    }
+    
+    generateGapFillPoints(start, end, sag = 0.3) {
+        // Gap fill feature: creates a smooth bridge between two points
+        // Useful for connecting components in product design
+        const points = [];
+        const segments = 12;
+        
+        // Calculate midpoint with slight sag for natural curve
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2 + sag;
+        const midZ = (start.z + end.z) / 2;
+        
+        // Catmull-Rom needs intermediate points for smooth interpolation
+        // Add start point twice for better control
+        points.push(start.clone());
+        points.push(start.clone());
+        
+        // Add midpoint control point
+        points.push(new THREE.Vector3(midX, midY, midZ));
+        
+        // Add end point twice for better control
+        points.push(end.clone());
+        points.push(end.clone());
+        
+        return points;
+    }
+    
+    createGearGeometry(outerRadius, innerRadius, thickness, teeth) {
+        const shape = new THREE.Shape();
+        const toothHeight = outerRadius - innerRadius;
+        const toothAngle = (Math.PI * 2) / (teeth * 2);
+        
+        for (let i = 0; i < teeth * 2; i++) {
+            const angle = i * toothAngle;
+            const radius = (i % 2 === 0) ? innerRadius : outerRadius;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                shape.moveTo(x, y);
+            } else {
+                shape.lineTo(x, y);
+            }
+        }
+        shape.closePath();
+        
+        const extrudeSettings = {
+            steps: 1,
+            depth: thickness,
+            bevelEnabled: false
+        };
+        
+        return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    }
+    
+    createStarGeometry(outerRadius, innerRadius, points) {
+        const shape = new THREE.Shape();
+        const step = Math.PI / points;
+        
+        for (let i = 0; i < points * 2; i++) {
+            const radius = (i % 2 === 0) ? outerRadius : innerRadius;
+            const angle = i * step - Math.PI / 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                shape.moveTo(x, y);
+            } else {
+                shape.lineTo(x, y);
+            }
+        }
+        shape.closePath();
+        
+        const extrudeSettings = {
+            steps: 1,
+            depth: 0.15,
+            bevelEnabled: false
+        };
+        
+        return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    }
+    
+    onWindowResize() {
+        const viewport = document.getElementById('viewport');
+        if (!viewport) return;
+        
+        this.camera.aspect = viewport.clientWidth / viewport.clientHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+    
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        this.controls.update();
+        
+        // Update selected object properties if it exists
+        if (this.selectedObject) {
+            const posX = document.getElementById('posX');
+            const posY = document.getElementById('posY');
+            const posZ = document.getElementById('posZ');
+            
+            // Only update if inputs are not focused to avoid cursor jumping
+            if (posX && !document.activeElement.contains(posX)) {
+                posX.value = this.selectedObject.position.x.toFixed(2);
+            }
+            if (posY && !document.activeElement.contains(posY)) {
+                posY.value = this.selectedObject.position.y.toFixed(2);
+            }
+            if (posZ && !document.activeElement.contains(posZ)) {
+                posZ.value = this.selectedObject.position.z.toFixed(2);
+            }
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+// Initialize application
+document.addEventListener('DOMContentLoaded', () => {
+    window.progen = new ProGen();
+});
+    </script>
+</body>
+</html>
