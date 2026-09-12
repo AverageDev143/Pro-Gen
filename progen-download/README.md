@@ -1,4 +1,4 @@
-# 🚀 Pro-Gen Download - Lightest 3D Modeling Runtime
+# Pro-Gen Download - Lightest 3D Modeling Runtime
 
 **Zero installation. Zero dependencies. Just download and open.**
 
@@ -34,14 +34,14 @@ chmod +x setup.sh
 
 ## Features
 
-✨ **20+ Primitive Shapes**
+ **20+ Primitive Shapes**
 - Basic: Cube, Sphere, Cylinder, Cone, Torus, Knot
 - Polyhedra: Dodecahedron, Icosahedron, Octahedron, Tetrahedron
 - Custom: Capsule, Pyramid, Gear, Star
 - Curves: Tube, Spiral, Spring, Ring
 - Fluid Motion: Fluid Curve, Ergonomic Curve, Product Edge, Fill Gap
 
-🔥 **Heat Analysis Mode**
+ **Heat Analysis Mode**
 - Toggle heat visualization with one click
 - Temperature slider (0°C - 500°C)
 - Color-coded safety zones:
@@ -49,7 +49,7 @@ chmod +x setup.sh
   - 🟡 Moderate (150-300°C)
   - 🔴 Danger (> 300°C)
 
-🎨 **Full 3D Editing**
+**Full 3D Editing**
 - Click-based workflow (no complex shortcuts needed)
 - Real-time property editing (position, scale, rotation, color)
 - Scene hierarchy management
@@ -58,7 +58,7 @@ chmod +x setup.sh
 - Grid toggle
 - Camera controls (rotate, pan, zoom)
 
-⚡ **Performance**
+**Performance**
 - 60 FPS rendering
 - Optimized WebGL rendering
 - Minimal memory footprint
