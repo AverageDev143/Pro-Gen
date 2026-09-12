@@ -113,8 +113,16 @@ class ProGen {
         // Heat toggle
         document.getElementById('heatToggle').addEventListener('change', (e) => {
             this.heatAnalysisEnabled = e.target.checked;
-            document.getElementById('heatOverlay').classList.toggle('hidden', !this.heatAnalysisEnabled);
-            this.updateHeatVisualization();
+            const heatOverlay = document.getElementById('heatOverlay');
+            if (!heatOverlay) return;
+            
+            heatOverlay.classList.toggle('hidden', !this.heatAnalysisEnabled);
+            
+            if (this.heatAnalysisEnabled) {
+                this.updateHeatVisualization();
+            } else {
+                this.restoreObjectColors();
+            }
         });
         
         // Temperature slider with smooth updates
@@ -277,7 +285,7 @@ class ProGen {
     
     duplicateObject() {
         if (!this.selectedObject) {
-            alert('Please select an object to duplicate');
+            this.showToast('Please select an object to duplicate');
             return;
         }
         
@@ -301,7 +309,7 @@ class ProGen {
     
     deleteObject() {
         if (!this.selectedObject) {
-            alert('Please select an object to delete');
+            this.showToast('Please select an object to delete');
             return;
         }
         
@@ -317,6 +325,11 @@ class ProGen {
     }
     
     clearScene() {
+        if (this.objects.length === 0) {
+            this.showToast('Scene is already empty');
+            return;
+        }
+        
         if (!confirm('Are you sure you want to clear all objects?')) return;
         
         this.objects.forEach(obj => {
@@ -330,16 +343,52 @@ class ProGen {
         this.updateSceneList();
     }
     
+    showToast(message, duration = 2000) {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 33, 62, 0.95);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            font-size: 0.875rem;
+            animation: fadeIn 0.2s ease-out;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.2s ease-out';
+            setTimeout(() => toast.remove(), 200);
+        }, duration);
+    }
+    
     resetView() {
         this.camera.position.set(5, 5, 5);
         this.camera.lookAt(0, 0, 0);
         this.controls.target.set(0, 0, 0);
         this.controls.update();
+        this.showToast('View reset', 1200);
     }
     
     toggleGrid() {
         if (this.gridHelper) {
             this.gridHelper.visible = !this.gridHelper.visible;
+            this.showToast(this.gridHelper.visible ? 'Grid shown' : 'Grid hidden', 1500);
         }
     }
     
@@ -350,6 +399,7 @@ class ProGen {
                 obj.material.wireframe = this.isWireframe;
             }
         });
+        this.showToast(this.isWireframe ? 'Wireframe enabled' : 'Wireframe disabled', 1500);
     }
     
     onViewportClick(event) {
@@ -456,16 +506,49 @@ class ProGen {
         });
     }
     
+    restoreObjectColors() {
+        // Restore original colors when heat analysis is disabled
+        const objects = this.objects.filter(obj => obj.userData.type !== 'grid');
+        
+        objects.forEach(obj => {
+            if (obj.material && obj.userData.baseColor) {
+                obj.material.color.setHex(obj.userData.baseColor);
+            }
+        });
+    }
+    
     onWindowResize() {
         const viewport = document.getElementById('viewport');
+        if (!viewport) return;
+        
         this.camera.aspect = viewport.clientWidth / viewport.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     }
     
     animate() {
         requestAnimationFrame(() => this.animate());
         this.controls.update();
+        
+        // Update selected object properties if it exists
+        if (this.selectedObject) {
+            const posX = document.getElementById('posX');
+            const posY = document.getElementById('posY');
+            const posZ = document.getElementById('posZ');
+            
+            // Only update if inputs are not focused to avoid cursor jumping
+            if (posX && !document.activeElement.contains(posX)) {
+                posX.value = this.selectedObject.position.x.toFixed(2);
+            }
+            if (posY && !document.activeElement.contains(posY)) {
+                posY.value = this.selectedObject.position.y.toFixed(2);
+            }
+            if (posZ && !document.activeElement.contains(posZ)) {
+                posZ.value = this.selectedObject.position.z.toFixed(2);
+            }
+        }
+        
         this.renderer.render(this.scene, this.camera);
     }
 }
