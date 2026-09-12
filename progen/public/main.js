@@ -191,7 +191,7 @@ class ProGen {
         }, 100);
     }
     
-    addObject(type) {
+    addObject(type, params = {}) {
         let geometry;
         const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
         const material = new THREE.MeshStandardMaterial({ 
@@ -216,14 +216,68 @@ class ProGen {
             case 'torus':
                 geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 32);
                 break;
+            case 'torusKnot':
+                geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 64, 8);
+                break;
+            case 'dodecahedron':
+                geometry = new THREE.DodecahedronGeometry(0.5);
+                break;
+            case 'icosahedron':
+                geometry = new THREE.IcosahedronGeometry(0.5);
+                break;
+            case 'octahedron':
+                geometry = new THREE.OctahedronGeometry(0.5);
+                break;
+            case 'tetrahedron':
+                geometry = new THREE.TetrahedronGeometry(0.5);
+                break;
+            case 'capsule':
+                geometry = new THREE.CapsuleGeometry(0.3, 0.6, 16, 32);
+                break;
+            case 'tube':
+                const path = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(-1, 0, 0),
+                    new THREE.Vector3(-0.5, 0.5, 0),
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(0.5, -0.5, 0),
+                    new THREE.Vector3(1, 0, 0)
+                ]);
+                geometry = new THREE.TubeGeometry(path, 20, 0.15, 8, false);
+                break;
+            case 'spiral':
+                const spiralPath = new THREE.CatmullRomCurve3(this.generateSpiraclePoints());
+                geometry = new THREE.TubeGeometry(spiralPath, 50, 0.1, 8, false);
+                break;
+            case 'spring':
+                const springPath = new THREE.CatmullRomCurve3(this.generateSpringPoints());
+                geometry = new THREE.TubeGeometry(springPath, 64, 0.12, 8, false);
+                break;
+            case 'gear':
+                geometry = this.createGearGeometry(0.5, 0.3, 0.15, 8);
+                break;
+            case 'star':
+                geometry = this.createStarGeometry(0.5, 0.25, 5);
+                break;
+            case 'pyramid':
+                geometry = new THREE.ConeGeometry(0.5, 0.8, 4);
+                break;
+            case 'ring':
+                geometry = new THREE.RingGeometry(0.3, 0.5, 32);
+                const ringMesh = new THREE.Mesh(geometry, material);
+                ringMesh.rotation.x = -Math.PI / 2;
+                mesh = ringMesh;
+                break;
             default:
                 return;
         }
         
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.y = 0.5;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
+        if (!geometry && type !== 'ring') return;
+        
+        if (type !== 'ring') {
+            mesh.position.y = 0.5;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+        }
         
         this.objectCounter++;
         mesh.userData = {
@@ -515,6 +569,91 @@ class ProGen {
                 obj.material.color.setHex(obj.userData.baseColor);
             }
         });
+    }
+    
+    generateSpiraclePoints() {
+        const points = [];
+        for (let i = 0; i < 50; i++) {
+            const angle = i * 0.3;
+            const radius = 1 + i * 0.04;
+            points.push(new THREE.Vector3(
+                Math.cos(angle) * radius,
+                i * 0.1,
+                Math.sin(angle) * radius
+            ));
+        }
+        return points;
+    }
+    
+    generateSpringPoints() {
+        const points = [];
+        const coils = 5;
+        const totalPoints = 64;
+        for (let i = 0; i <= totalPoints; i++) {
+            const angle = (i / totalPoints) * Math.PI * 2 * coils;
+            const height = (i / totalPoints) * 2 - 1;
+            points.push(new THREE.Vector3(
+                Math.cos(angle) * 0.4,
+                height,
+                Math.sin(angle) * 0.4
+            ));
+        }
+        return points;
+    }
+    
+    createGearGeometry(outerRadius, innerRadius, thickness, teeth) {
+        const shape = new THREE.Shape();
+        const toothHeight = outerRadius - innerRadius;
+        const toothAngle = (Math.PI * 2) / (teeth * 2);
+        
+        for (let i = 0; i < teeth * 2; i++) {
+            const angle = i * toothAngle;
+            const radius = (i % 2 === 0) ? innerRadius : outerRadius;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                shape.moveTo(x, y);
+            } else {
+                shape.lineTo(x, y);
+            }
+        }
+        shape.closePath();
+        
+        const extrudeSettings = {
+            steps: 1,
+            depth: thickness,
+            bevelEnabled: false
+        };
+        
+        return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    }
+    
+    createStarGeometry(outerRadius, innerRadius, points) {
+        const shape = new THREE.Shape();
+        const step = Math.PI / points;
+        
+        for (let i = 0; i < points * 2; i++) {
+            const radius = (i % 2 === 0) ? outerRadius : innerRadius;
+            const angle = i * step - Math.PI / 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                shape.moveTo(x, y);
+            } else {
+                shape.lineTo(x, y);
+            }
+        }
+        shape.closePath();
+        
+        const extrudeSettings = {
+            steps: 1,
+            depth: 0.15,
+            bevelEnabled: false
+        };
+        
+        return new THREE.ExtrudeGeometry(shape, extrudeSettings);
     }
     
     onWindowResize() {
