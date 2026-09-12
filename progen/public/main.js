@@ -245,12 +245,29 @@ class ProGen {
                 geometry = new THREE.TubeGeometry(path, 20, 0.15, 8, false);
                 break;
             case 'spiral':
-                const spiralPath = new THREE.CatmullRomCurve3(this.generateSpiraclePoints());
+                const spiralPath = new THREE.CatmullRomCurve3(this.generateSpiralPoints());
                 geometry = new THREE.TubeGeometry(spiralPath, 50, 0.1, 8, false);
                 break;
             case 'spring':
                 const springPath = new THREE.CatmullRomCurve3(this.generateSpringPoints());
                 geometry = new THREE.TubeGeometry(springPath, 64, 0.12, 8, false);
+                break;
+            case 'fluidCurve':
+                const fluidPath = new THREE.CatmullRomCurve3(this.generateFluidCurvePoints(params.segments || 8, params.amplitude || 0.5, params.frequency || 1, params.closed || false));
+                geometry = new THREE.TubeGeometry(fluidPath, 64, params.radius || 0.15, 16, params.closed || false);
+                break;
+            case 'ergonomicCurve':
+                const ergoPath = new THREE.CatmullRomCurve3(this.generateErgonomicCurvePoints(params.closed || false));
+                geometry = new THREE.TubeGeometry(ergoPath, 48, params.radius || 0.2, 12, params.closed || false);
+                break;
+            case 'productEdge':
+                const edgePath = new THREE.CatmullRomCurve3(this.generateProductEdgePoints(params.cornerRadius || 0.3, params.width || 1.5, params.height || 0.5));
+                geometry = new THREE.TubeGeometry(edgePath, 32, params.radius || 0.08, 8, false);
+                break;
+            case 'fillGap':
+                // Gap fill creates a smooth bridge between two points
+                const gapPath = new THREE.CatmullRomCurve3(this.generateGapFillPoints(params.start || new THREE.Vector3(-1, 0, 0), params.end || new THREE.Vector3(1, 0, 0), params.sag || 0.3));
+                geometry = new THREE.TubeGeometry(gapPath, 24, params.radius || 0.12, 10, false);
                 break;
             case 'gear':
                 geometry = this.createGearGeometry(0.5, 0.3, 0.15, 8);
@@ -571,7 +588,7 @@ class ProGen {
         });
     }
     
-    generateSpiraclePoints() {
+    generateSpiralPoints() {
         const points = [];
         for (let i = 0; i < 50; i++) {
             const angle = i * 0.3;
@@ -598,6 +615,122 @@ class ProGen {
                 Math.sin(angle) * 0.4
             ));
         }
+        return points;
+    }
+    
+    generateFluidCurvePoints(segments = 8, amplitude = 0.5, frequency = 1, closed = false) {
+        // Creates smooth, flowing curves ideal for product design
+        // Avoids blob-like shapes, creates elegant curves
+        const points = [];
+        const totalPoints = segments * 4;
+        
+        for (let i = 0; i <= totalPoints; i++) {
+            const t = i / totalPoints;
+            const angle = t * Math.PI * 2 * frequency;
+            
+            // Smooth sine wave with gentle transitions
+            const x = (t - 0.5) * 2;
+            const y = Math.sin(angle) * amplitude;
+            const z = Math.cos(angle * 0.5) * amplitude * 0.3;
+            
+            points.push(new THREE.Vector3(x, y, z));
+        }
+        
+        // Close the loop if needed
+        if (closed && points.length > 0) {
+            points.push(points[0].clone());
+        }
+        
+        return points;
+    }
+    
+    generateErgonomicCurvePoints(closed = false) {
+        // Creates ergonomic curves suitable for handles and grips
+        const points = [];
+        const segments = 12;
+        
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            
+            // Ergonomic S-curve shape
+            const x = (t - 0.5) * 2;
+            const y = Math.pow(t - 0.5, 3) * 1.5;
+            const z = Math.sin(t * Math.PI) * 0.2;
+            
+            points.push(new THREE.Vector3(x, y, z));
+        }
+        
+        if (closed && points.length > 0) {
+            points.push(points[0].clone());
+        }
+        
+        return points;
+    }
+    
+    generateProductEdgePoints(cornerRadius = 0.3, width = 1.5, height = 0.5) {
+        // Creates clean product edges with rounded corners
+        // Perfect for consumer product design
+        const points = [];
+        const cornerSegments = 8;
+        
+        // Bottom left to bottom right
+        for (let i = 0; i <= cornerSegments; i++) {
+            const t = i / cornerSegments;
+            points.push(new THREE.Vector3(-width/2 + t * width, -height/2, 0));
+        }
+        
+        // Bottom right to top right (rounded corner)
+        for (let i = 0; i <= cornerSegments; i++) {
+            const angle = (i / cornerSegments) * Math.PI / 2;
+            points.push(new THREE.Vector3(
+                width/2 - cornerRadius + Math.cos(angle) * cornerRadius,
+                -height/2 + cornerRadius - Math.sin(angle) * cornerRadius,
+                0
+            ));
+        }
+        
+        // Top right to top left
+        for (let i = 0; i <= cornerSegments; i++) {
+            const t = i / cornerSegments;
+            points.push(new THREE.Vector3(width/2 - t * width, height/2, 0));
+        }
+        
+        // Top left to bottom left (rounded corner)
+        for (let i = 0; i <= cornerSegments; i++) {
+            const angle = (i / cornerSegments) * Math.PI / 2;
+            points.push(new THREE.Vector3(
+                -width/2 + cornerRadius - Math.cos(angle) * cornerRadius,
+                height/2 - cornerRadius + Math.sin(angle) * cornerRadius,
+                0
+            ));
+        }
+        
+        return points;
+    }
+    
+    generateGapFillPoints(start, end, sag = 0.3) {
+        // Gap fill feature: creates a smooth bridge between two points
+        // Useful for connecting components in product design
+        const points = [];
+        const segments = 12;
+        
+        // Calculate midpoint with slight sag for natural curve
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2 + sag;
+        const midZ = (start.z + end.z) / 2;
+        
+        // Catmull-Rom needs intermediate points for smooth interpolation
+        // Add start point twice for better control
+        points.push(start.clone());
+        points.push(start.clone());
+        
+        // Add midpoint control point
+        points.push(new THREE.Vector3(midX, midY, midZ));
+        
+        // Add end point twice for better control
+        points.push(end.clone());
+        points.push(end.clone());
+        
         return points;
     }
     
