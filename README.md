@@ -1,4 +1,4 @@
-# Pro-Gen: Natural 3D Modeling Hub
+# Pro-Gen: Natural 3D Modeling Hub (BETA)
 
  **Have you ever wanted to model something or design a product but always found Blender and other free solutions hard?**
 
